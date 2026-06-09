@@ -1,7 +1,8 @@
 // 1. CONFIGURATION
 const CONFIG = {
     documentId: "xKido1E4f9fSswgH", // Your Sigex ID
-    baseUrl: "http://localhost:8000/api"
+    baseUrl: "/api"  // No http://localhost:8000, just the path!
+
 };
 function toggleSignButtons() {
     const checkbox = document.getElementById('consent-checkbox');
