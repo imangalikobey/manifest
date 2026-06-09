@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 import httpx
 import logging
 import json
-
+import os
 # Setup logging format
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sigex-proxy")
@@ -17,6 +18,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Get the directory where this current python file lives
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 1. Serve the index.html on the root path
+@app.get("/")
+async def serve_frontend():
+    html_path = os.path.join(current_dir, "index.html")
+    return FileResponse(html_path)
 
 SIGEX_BASE = "https://sigex.kz/api"
 
