@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import httpx
@@ -113,3 +114,7 @@ async def proxy_get(path: str, request: Request):
             status_code=resp.status_code, 
             media_type=resp.headers.get("content-type")
         )
+    
+# 2. SERVE YOUR STATIC JS/PDF FILES
+# This allows the browser to find app.js, ncalayer-client.js, etc.
+app.mount("/static", StaticFiles(directory="static"), name="static")
