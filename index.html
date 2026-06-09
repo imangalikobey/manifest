@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Қазақстан Ғалымдарының Манифесі - Қол қою</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --bg-gradient: radial-gradient(circle at 50% 50%, #11142e 0%, #070814 100%);
+            --card-bg: rgba(13, 16, 37, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #0ea5e9;
+            --accent-yellow: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 50px var(--primary-glow);
+            width: 100%;
+            max-width: 2000px;
+            text-align: center;
+        }
+
+        .icon-container {
+            width: 64px; height: 64px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            display: flex; justify-content: center; align-items: center;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .icon-container svg { width: 32px; height: 32px; fill: none; stroke: var(--primary); stroke-width: 2; }
+
+        h1 {
+            font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+        .document-meta-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 10px; font-size: 0.85rem; text-align: left;
+        }
+
+        .doc-label { color: var(--text-muted); font-weight: 500; }
+        .doc-title { color: var(--text-main); font-weight: 600; }
+
+        .selected-file-info {
+            display: none; /* Shows up when doc is loaded */
+            width: 100%; align-items: center; gap: 12px;
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px; padding: 12px; text-align: left; margin-bottom: 1.5rem;
+        }
+
+        .btn-nca {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: white; border: none; border-radius: 12px;
+            padding: 16px 24px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-nca:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px var(--primary-glow); }
+        .btn-nca:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+
+        .status-card {
+            margin-top: 1.5rem; border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2); padding: 16px; text-align: left;
+        }
+
+        .status-header { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .status-indicator { width: 8px; height: 8px; border-radius: 50%; background: #71717a; }
+        .status-indicator.ready { background: var(--accent-blue); }
+        .status-indicator.loading { background: var(--accent-yellow); animation: pulse 1s infinite alternate; }
+        .status-indicator.success { background: var(--accent-green); }
+        .status-indicator.error { background: var(--accent-red); }
+
+        .status-content { font-size: 0.9rem; font-weight: 500; }
+
+        .footer-info { margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); }
+        .footer-info a { color: var(--primary); text-decoration: none; }
+
+        .spinner {
+            width: 18px; height: 18px; border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; display: none;
+        }
+            .consent-container {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .consent-container label {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    #consent-checkbox {
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: var(--primary); /* Чекбокстың түсін көк қылады */
+    }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+  .manifesto-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+    line-height: 1.8;
+}
+
+.manifesto-container h2 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    color: var(--primary);
+}
+
+.manifesto-container p {
+    margin-bottom: 1rem;
+    color: var(--text-main);
+    text-align: justify;
+}
+
+.manifesto-subtitle {
+    font-size: 1.1rem;
+    color: var(--accent-blue);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+.download-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 2rem 0;
+}
+
+.download-card {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.download-card-ru {
+    background: rgba(10, 185, 129, 0.05);
+    border-color: rgba(10, 185, 129, 0.2);
+}
+
+.download-card-ru:hover {
+    box-shadow: 0 12px 24px rgba(10, 185, 129, 0.15);
+    border-color: rgba(10, 185, 129, 0.4);
+}
+
+.download-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.download-title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.download-desc {
+    margin: 0 0 20px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-card-ru .download-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.download-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.download-btn:active {
+    transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .download-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .download-card {
+        padding: 20px 16px;
+    }
+}
+.signature-counter-card {
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 20px;
+    text-align: left;
+}
+
+.counter-header {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+}
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="icon-container">
+            <svg viewBox="0 0 24 24" stroke="currentColor"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        </div>
+        <!-- LANGUAGE SWITCHER -->
+<div style="display: flex; gap: 8px; margin-bottom: 1.5rem; justify-content: center;">
+    <button id="lang-kk" onclick="switchLanguage('kk')" style="background: transparent; border: 1px solid rgba(99, 102, 241, 0.3); color: #f8fafc; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s ease; opacity: 1;">
+        Қазақ
+    </button>
+    <button id="lang-ru" onclick="switchLanguage('ru')" style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.1); color: #f8fafc; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s ease; opacity: 0.5;">
+        Русский
+    </button>
+</div>
+<div class="manifesto-container">
+ 
+</div>
+ 
+<!-- CSS Styling -->
+<style>
+.manifesto-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+    line-height: 1.8;
+    color: var(--text-main);
+}
+ 
+.manifesto-container h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+ 
+.manifesto-container h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+    padding-bottom: 0.5rem;
+}
+ 
+.manifesto-container h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-blue);
+}
+ 
+.manifesto-subtitle {
+    font-size: 1.1rem;
+    color: var(--accent-blue);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    text-align: center;
+}
+ 
+.manifesto-intro {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(99, 102, 241, 0.05);
+    border-left: 3px solid var(--primary);
+    border-radius: 4px;
+}
+ 
+.manifesto-section {
+    margin-bottom: 2.5rem;
+}
+ 
+.manifesto-section p {
+    margin-bottom: 1.25rem;
+    color: var(--text-main);
+    text-align: justify;
+}
+ 
+.principle {
+    background: rgba(99, 102, 241, 0.03);
+    border-left: 4px solid var(--primary);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+}
+ 
+.principle h3 {
+    color: var(--primary);
+    margin-top: 0;
+}
+ 
+.appeal {
+    background: rgba(16, 185, 129, 0.03);
+    border-left: 4px solid var(--accent-green);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+}
+ 
+.appeal h3 {
+    color: var(--accent-green);
+    margin-top: 0;
+}
+ 
+.final-appeal {
+    background: rgba(59, 130, 246, 0.05);
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    padding: 2rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+}
+ 
+.final-appeal p {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin-bottom: 1.5rem;
+}
+ 
+.manifesto-credits {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    margin-top: 3rem;
+    border-radius: 8px;
+    text-align: center;
+}
+ 
+.manifesto-credits h3 {
+    color: var(--text-muted);
+    margin-top: 0;
+}
+ 
+.manifesto-credits p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0.5rem 0;
+}
+ 
+.credits-list {
+    font-weight: 600;
+    color: var(--text-main);
+}
+ 
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+    .manifesto-container {
+        padding: 1.5rem;
+    }
+    
+    .manifesto-container h1 {
+        font-size: 1.4rem;
+    }
+    
+    .manifesto-container h2 {
+        font-size: 1.2rem;
+    }
+    
+    .manifesto-container p {
+        font-size: 0.95rem;
+    }
+}
+</style>
+        <p class="subtitle">Манифестке ЭЦП арқылы қол қою</p>
+
+        <div class="document-meta-container">
+            <span class="doc-label">Құжат:</span>
+            <span class="doc-title" id="document-title">Жүктелуде...</span>
+        </div>
+
+        <!-- Success Banner when doc is fetched -->
+        <div class="selected-file-info" id="auto-loaded-banner">
+            <div style="color: var(--accent-green);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div style="font-size: 0.85rem;">
+                <div style="font-weight: 600; color: #fff;">Манифест жүктелді</div>
+                <div style="color: var(--accent-green);">Қол қоюға дайын</div>
+            </div>
+        </div>
+<div class="download-links">
+    <a href="manifesto-kz.pdf" download class="download-card download-card-kz">
+        <div class="download-icon">📄</div>
+        <h3 class="download-title">Қазақ тілінде</h3>
+        <p class="download-desc">Манифестің толық мәтіні</p>
+        <button class="download-btn">Жүктеу ↓</button>
+    </a>
+
+    <a href="manifesto-ru.pdf" download class="download-card download-card-ru">
+        <div class="download-icon">📄</div>
+        <h3 class="download-title">На русском языке</h3>
+        <p class="download-desc">Полный текст манифеста</p>
+        <button class="download-btn">Скачать ↓</button>
+    </a>
+</div>
+      <div class="consent-container">
+          <input type="checkbox" id="consent-checkbox" onchange="toggleSignButtons()">
+          <label for="consent-checkbox">
+              «Әділет» саяси партиясын құру және мемлекеттік тіркеу мақсатында Қазақстан Республикасының «Дербес деректер және оларды қорғау туралы» Заңына сәйкес менің дербес деректерімді жинауға, өңдеуге және пайдалануға келісім беремін.
+          </label>
+      </div>
+        <div class="action-container">
+            <button class="btn-nca" id="btn-sign" onclick="signWithNCALayer()" disabled>
+                <div class="spinner" id="btn-spinner"></div>
+                <svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                <span>NCALayer арқылы қол қою</span>
+            </button>
+        </div>
+
+        <div class="status-card">
+            <div class="status-header">
+                <span>ҚАЛЫП-КҮЙ</span>
+                <span class="status-indicator" id="status-indicator"></span>
+            </div>
+            <div class="status-content" id="status-text">Дайын...</div>
+        </div>
+
+        <div class="footer-info">
+            Компьютерде <strong>NCALayer</strong> іске қосылып тұруы керек.<br>
+            <a href="https://pki.gov.kz/ncalayer/" target="_blank">ҰКО ресми сайтынан жүктеу</a>
+        </div>
+        <!-- SIGNATURE COUNTER -->
+<div class="signature-counter-card">
+    <div class="counter-header">
+        <span>Манифестті қолдаған ғалымдар саны</span>
+        <span style="color: var(--accent-green);">✓</span>
+    </div>
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+        <span style="font-size: 2.5rem; font-weight: 700; color: var(--accent-green);" id="signature-count">0</span>
+        <span style="font-size: 1rem; color: var(--text-muted);">адам</span>
+    </div>
+</div>
+    </div>
+
+    <script src="ncalayer-client.js"></script>
+    <script src="app.js"></script>
+    <script src="language.js"></script>
+    <script>
+        // UI Helpers for app.js
+        function updateDocumentTitle(title) {
+            document.getElementById('document-title').textContent = title;
+        }
+
+        function showAutoLoadedDocument() {
+            document.getElementById('auto-loaded-banner').style.display = 'flex';
+            toggleSignButtons();
+        }
+
+        function updateUIStatus(text, state = "default") {
+            const textEl = document.getElementById('status-text');
+            const indicatorEl = document.getElementById('status-indicator');
+            const btnSign = document.getElementById('btn-sign');
+            const spinner = document.getElementById('btn-spinner');
+            const btnIcon = document.getElementById('btn-icon');
+
+            textEl.textContent = text;
+            indicatorEl.className = 'status-indicator ' + state;
+
+            if (state === "loading") {
+                btnSign.disabled = true;
+                spinner.style.display = 'block';
+                btnIcon.style.display = 'none';
+            } else {
+                spinner.style.display = 'none';
+                btnIcon.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

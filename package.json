@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "lint": "^1.2.2",
+    "ncalayer-js-client": "^1.5.12",
+    "run": "^1.5.0",
+    "serve": "^14.2.6"
+  }
+}
